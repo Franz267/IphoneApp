@@ -22,22 +22,69 @@ html, body {
   width: 100%;
 }
 
-/* Prevent iOS Safari auto-zoom on input focus by ensuring minimum 16px font size */
+/* Prevent iOS Safari auto-zoom on input focus */
 input, select, textarea {
   font-size: 16px !important;
   user-select: text;
   -webkit-user-select: text;
 }
 
+/* iOS Safe Area Padding Helpers */
+.ios-header-safe {
+  padding-top: 14px;
+}
+
+@media (max-width: 640px) {
+  .ios-header-safe {
+    padding-top: 54px;
+    padding-top: max(calc(env(safe-area-inset-top, 0px) + 12px), 54px);
+  }
+}
+
+@media all and (display-mode: standalone) {
+  .ios-header-safe {
+    padding-top: 56px;
+    padding-top: max(calc(env(safe-area-inset-top, 0px) + 14px), 56px);
+  }
+}
+
+.ios-modal-header-safe {
+  padding-top: 14px;
+}
+
+@media (max-width: 640px) {
+  .ios-modal-header-safe {
+    padding-top: 54px;
+    padding-top: max(calc(env(safe-area-inset-top, 0px) + 12px), 54px);
+  }
+}
+
+@media all and (display-mode: standalone) {
+  .ios-modal-header-safe {
+    padding-top: 56px;
+    padding-top: max(calc(env(safe-area-inset-top, 0px) + 14px), 56px);
+  }
+}
+
+.ios-bottom-nav-safe {
+  padding-bottom: 24px;
+  padding-bottom: max(calc(env(safe-area-inset-bottom, 0px) + 8px), 24px);
+}
+
+.ios-modal-bottom-safe {
+  padding-bottom: 28px;
+  padding-bottom: max(calc(env(safe-area-inset-bottom, 0px) + 16px), 28px);
+}
+
 /* iOS Glassmorphism blur */
 .ios-glass {
-  background: rgba(15, 23, 42, 0.85);
+  background: rgba(15, 23, 42, 0.92);
   backdrop-filter: blur(25px) saturate(190%);
   -webkit-backdrop-filter: blur(25px) saturate(190%);
 }
 
 .ios-glass-card {
-  background: rgba(15, 23, 42, 0.65);
+  background: rgba(15, 23, 42, 0.7);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.08);

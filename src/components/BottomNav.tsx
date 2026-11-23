@@ -31,7 +31,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 ios-glass border-t border-slate-800/80 pb-[calc(env(safe-area-inset-bottom,0px)+0.45rem)] pt-2 px-3 shadow-2xl">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 ios-glass border-t border-slate-800/80 ios-bottom-nav-safe pt-2 px-3 shadow-2xl">
       <div className="max-w-md mx-auto flex items-center justify-around">
         {tabs.map(({ id, label, icon: Icon, hasBadge }) => {
           const isActive = currentTab === id;

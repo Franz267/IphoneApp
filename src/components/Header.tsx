@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dumbbell, WifiOff, Sparkles } from 'lucide-react';
+import { Dumbbell, WifiOff } from 'lucide-react';
 
 interface HeaderProps {
   activeTab: 'workout' | 'diet' | 'history' | 'settings';
@@ -8,7 +8,7 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ activeTab, hasActiveWorkout }) => {
   return (
-    <header className="sticky top-0 z-30 ios-glass border-b border-slate-850 px-4 pt-[calc(env(safe-area-inset-top,0px)+0.65rem)] pb-2.5 flex items-center justify-between transition-all">
+    <header className="sticky top-0 z-30 ios-glass border-b border-slate-800/80 px-4 ios-header-safe pb-3 flex items-center justify-between transition-all shadow-lg">
       <div className="flex items-center gap-2.5">
         <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-slate-950 shadow-md shadow-emerald-500/25 active:scale-95 transition-transform">
           <Dumbbell className="w-4 h-4 stroke-[2.5]" />

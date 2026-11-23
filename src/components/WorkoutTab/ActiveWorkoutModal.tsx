@@ -236,7 +236,7 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
   return (
     <div className="fixed inset-0 bg-slate-950 z-50 flex flex-col overflow-hidden">
       {/* iOS Top sticky bar with Safe Area */}
-      <div className="ios-glass border-b border-slate-800/80 px-4 pt-[calc(env(safe-area-inset-top,0px)+0.65rem)] pb-3 flex items-center justify-between">
+      <div className="ios-glass border-b border-slate-800/80 px-4 ios-modal-header-safe pb-3 flex items-center justify-between shadow-lg">
         <div className="flex-1 mr-2">
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />

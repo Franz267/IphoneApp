@@ -34,9 +34,11 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
   const [fat, setFat] = useState<string>('');
   const [saveToFavorites, setSaveToFavorites] = useState<boolean>(true);
 
-  // Selected from favorites adjustment
-  const [selectedFood, setSelectedFood] = useState<SavedFood | null>(null);
-  const [customPortionGram, setCustomPortionGram] = useState<string>('');
+  const triggerHaptic = (ms = 10) => {
+    try {
+      if ('vibrate' in navigator) navigator.vibrate(ms);
+    } catch {}
+  };
 
   const filteredSavedFoods = savedFoods.filter(f =>
     f.name.toLowerCase().includes(search.toLowerCase())
@@ -46,6 +48,7 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
     e.preventDefault();
     if (!name.trim()) return;
 
+    triggerHaptic(15);
     const food: FoodItem = {
       id: 'food_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
       name: name.trim(),
@@ -61,6 +64,7 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
   };
 
   const handleSelectFavorite = (saved: SavedFood) => {
+    triggerHaptic(15);
     const food: FoodItem = {
       id: 'food_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
       name: saved.name,
@@ -75,72 +79,77 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex flex-col justify-end sm:justify-center p-0 sm:p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-t-3xl sm:rounded-2xl max-h-[90vh] flex flex-col shadow-2xl animate-in slide-in-from-bottom duration-200">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex flex-col justify-end">
+      <div className="bg-slate-900 border-t border-slate-800 rounded-t-[28px] max-h-[90vh] flex flex-col shadow-2xl animate-in slide-in-from-bottom duration-250 pb-[calc(env(safe-area-inset-bottom,0px)+1.5rem)]">
+        {/* iOS Drag Handle */}
+        <div className="w-10 h-1 bg-slate-700/80 rounded-full mx-auto my-2.5" />
+
         {/* Header */}
-        <div className="p-4 border-b border-slate-800 flex items-center justify-between">
+        <div className="px-4 pb-3 border-b border-slate-800 flex items-center justify-between">
           <div>
-            <h3 className="font-bold text-lg text-white">
+            <h3 className="font-extrabold text-[17px] text-white tracking-tight">
               Aggiungi a {MEAL_NAMES[mealType]}
             </h3>
             <p className="text-xs text-slate-400">Registra cosa hai mangiato</p>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center"
+            className="w-8 h-8 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center active:scale-90"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Tab switch */}
-        <div className="flex border-b border-slate-800 px-4 pt-2 gap-2">
-          <button
-            onClick={() => setActiveTab('favorites')}
-            className={`pb-2.5 px-3 font-bold text-xs border-b-2 transition ${
-              activeTab === 'favorites'
-                ? 'border-emerald-500 text-emerald-400'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            Alimenti Frequenti ({savedFoods.length})
-          </button>
-          <button
-            onClick={() => setActiveTab('custom')}
-            className={`pb-2.5 px-3 font-bold text-xs border-b-2 transition ${
-              activeTab === 'custom'
-                ? 'border-emerald-500 text-emerald-400'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            + Alimento Personalizzato
-          </button>
+        {/* Segmented Control iOS Tab */}
+        <div className="p-3">
+          <div className="grid grid-cols-2 p-1 bg-slate-950 border border-slate-800 rounded-xl">
+            <button
+              onClick={() => { triggerHaptic(8); setActiveTab('favorites'); }}
+              className={`py-2 text-xs font-bold rounded-lg transition active:scale-95 ${
+                activeTab === 'favorites'
+                  ? 'bg-slate-850 text-white shadow-sm'
+                  : 'text-slate-400'
+              }`}
+            >
+              Frequenti ({savedFoods.length})
+            </button>
+            <button
+              onClick={() => { triggerHaptic(8); setActiveTab('custom'); }}
+              className={`py-2 text-xs font-bold rounded-lg transition active:scale-95 ${
+                activeTab === 'custom'
+                  ? 'bg-slate-850 text-white shadow-sm'
+                  : 'text-slate-400'
+              }`}
+            >
+              + Nuovo Alimento
+            </button>
+          </div>
         </div>
 
         {/* Tab Content */}
-        <div className="flex-1 overflow-y-auto p-4">
+        <div className="flex-1 overflow-y-auto ios-scroll px-4 pb-4">
           {activeTab === 'favorites' ? (
             <div className="space-y-3">
               <div className="relative">
                 <Search className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
                 <input
                   type="text"
-                  placeholder="Cerca alimento (pollo, riso, uova, pasta)..."
+                  placeholder="Cerca alimento (pollo, riso, uova)..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white placeholder-slate-500 outline-none focus:border-emerald-500"
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-[16px] text-white placeholder-slate-500 outline-none focus:border-emerald-500"
                 />
               </div>
 
-              <div className="space-y-2 max-h-[50vh] overflow-y-auto pr-1">
+              <div className="space-y-2 max-h-[50vh] overflow-y-auto ios-scroll pr-1">
                 {filteredSavedFoods.map((food) => (
                   <button
                     key={food.id}
                     onClick={() => handleSelectFavorite(food)}
-                    className="w-full p-3 bg-slate-950/70 hover:bg-slate-800/80 border border-slate-800/80 rounded-2xl flex items-center justify-between text-left group active:scale-98 transition"
+                    className="w-full p-3 bg-slate-950/70 border border-slate-800/80 rounded-2xl flex items-center justify-between text-left active:scale-[0.98] transition"
                   >
                     <div>
-                      <div className="font-bold text-sm text-white group-hover:text-emerald-400 transition">
+                      <div className="font-bold text-sm text-white">
                         {food.name}
                       </div>
                       <div className="flex items-center gap-2 mt-0.5 text-xs text-slate-400">
@@ -154,136 +163,125 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
                         <span>F: <strong className="text-slate-300">{food.fat}g</strong></span>
                       </div>
                     </div>
-                    <div className="w-8 h-8 rounded-xl bg-slate-800 group-hover:bg-emerald-500 text-slate-400 group-hover:text-slate-950 flex items-center justify-center transition">
+                    <div className="w-8 h-8 rounded-xl bg-slate-800 text-slate-400 flex items-center justify-center">
                       <Plus className="w-4 h-4 stroke-[3]" />
                     </div>
                   </button>
                 ))}
-
-                {filteredSavedFoods.length === 0 && (
-                  <div className="py-8 text-center">
-                    <p className="text-xs text-slate-400">Nessun alimento trovato.</p>
-                    <button
-                      onClick={() => {
-                        setName(search);
-                        setActiveTab('custom');
-                      }}
-                      className="mt-3 text-xs font-bold text-emerald-400 hover:underline"
-                    >
-                      Aggiungilo ora come nuovo alimento
-                    </button>
-                  </div>
-                )}
               </div>
             </div>
           ) : (
             <form onSubmit={handleAddCustom} className="space-y-3.5">
               <div>
-                <label className="text-xs font-semibold text-slate-400 block mb-1">
-                  Nome Alimento o Piatto *
+                <label className="text-xs font-bold text-slate-400 block mb-1">
+                  Nome Alimento *
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="Es. Salmone con patate al forno"
+                  placeholder="Es. Pasta con salmone"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white outline-none focus:border-emerald-500"
+                  className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-[16px] text-white outline-none focus:border-emerald-500"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-slate-400 block mb-1">
+                <label className="text-xs font-bold text-slate-400 block mb-1">
                   Porzione / Quantità (opzionale)
                 </label>
                 <input
                   type="text"
-                  placeholder="Es. 200g, 1 piatto, 1 porzione"
+                  placeholder="Es. 150g, 1 piatto"
                   value={portion}
                   onChange={(e) => setPortion(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white outline-none focus:border-emerald-500"
+                  className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-[16px] text-white outline-none focus:border-emerald-500"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-semibold text-emerald-400 block mb-1">
+                  <label className="text-xs font-bold text-emerald-400 block mb-1">
                     Calorie (kcal) *
                   </label>
                   <input
                     type="number"
+                    inputMode="numeric"
                     step="1"
                     min="0"
                     required
-                    placeholder="Es. 450"
+                    placeholder="450"
                     value={calories}
                     onChange={(e) => setCalories(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm font-bold text-white font-mono outline-none focus:border-emerald-500"
+                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-[16px] font-bold text-white font-mono outline-none focus:border-emerald-500"
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold text-sky-400 block mb-1">
+                  <label className="text-xs font-bold text-sky-400 block mb-1">
                     Proteine (g)
                   </label>
                   <input
                     type="number"
+                    inputMode="decimal"
                     step="0.5"
                     min="0"
                     placeholder="0"
                     value={protein}
                     onChange={(e) => setProtein(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm font-bold text-white font-mono outline-none focus:border-sky-500"
+                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-[16px] font-bold text-white font-mono outline-none focus:border-sky-500"
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold text-amber-400 block mb-1">
+                  <label className="text-xs font-bold text-amber-400 block mb-1">
                     Carboidrati (g)
                   </label>
                   <input
                     type="number"
+                    inputMode="decimal"
                     step="0.5"
                     min="0"
                     placeholder="0"
                     value={carbs}
                     onChange={(e) => setCarbs(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm font-bold text-white font-mono outline-none focus:border-amber-500"
+                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-[16px] font-bold text-white font-mono outline-none focus:border-amber-500"
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold text-rose-400 block mb-1">
+                  <label className="text-xs font-bold text-rose-400 block mb-1">
                     Grassi (g)
                   </label>
                   <input
                     type="number"
+                    inputMode="decimal"
                     step="0.5"
                     min="0"
                     placeholder="0"
                     value={fat}
                     onChange={(e) => setFat(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm font-bold text-white font-mono outline-none focus:border-rose-500"
+                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-[16px] font-bold text-white font-mono outline-none focus:border-rose-500"
                   />
                 </div>
               </div>
 
-              <label className="flex items-center gap-2 pt-2 cursor-pointer">
+              <label className="flex items-center gap-2 pt-1 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={saveToFavorites}
                   onChange={(e) => setSaveToFavorites(e.target.checked)}
-                  className="rounded text-emerald-500 focus:ring-0 bg-slate-950 border-slate-700 w-4 h-4"
+                  className="rounded text-emerald-500 bg-slate-950 border-slate-700 w-4 h-4"
                 />
                 <span className="text-xs text-slate-300">
-                  Salva nei preferiti per riusarlo velocemente in futuro
+                  Salva nei preferiti per riusarlo velocemente
                 </span>
               </label>
 
-              <div className="pt-3">
+              <div className="pt-2">
                 <button
                   type="submit"
-                  className="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-sm shadow-lg shadow-emerald-500/20 active:scale-95 transition"
+                  className="w-full py-3.5 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-sm shadow-lg shadow-emerald-500/20 active:scale-95 transition"
                 >
                   Aggiungi Pasto
                 </button>

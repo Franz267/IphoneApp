@@ -9,8 +9,7 @@ import {
   Salad,
   Apple,
   Droplets,
-  Flame,
-  Info
+  Flame
 } from 'lucide-react';
 import { DailyDietLog, FoodItem, MealType, SavedFood, UserProfile } from '../../types';
 import { AddFoodModal } from './AddFoodModal';
@@ -36,8 +35,14 @@ export const DietTab: React.FC<DietTabProps> = ({
 }) => {
   const [modalMealType, setModalMealType] = useState<MealType | null>(null);
 
-  // Date shifting
+  const triggerHaptic = (ms = 10) => {
+    try {
+      if ('vibrate' in navigator) navigator.vibrate(ms);
+    } catch {}
+  };
+
   const shiftDate = (days: number) => {
+    triggerHaptic(8);
     const current = new Date(currentDate);
     current.setDate(current.getDate() + days);
     const yyyy = current.getFullYear();
@@ -58,7 +63,6 @@ export const DietTab: React.FC<DietTabProps> = ({
     });
   };
 
-  // Calculations
   const allMeals = [
     ...(dietLog.meals.breakfast || []),
     ...(dietLog.meals.lunch || []),
@@ -73,8 +77,8 @@ export const DietTab: React.FC<DietTabProps> = ({
 
   const remainingCalories = profile.targetCalories - totalCalories;
 
-  // Meal handling
   const handleAddFood = (mealType: MealType, food: FoodItem, saveToFavorites?: boolean) => {
+    triggerHaptic(15);
     const currentList = dietLog.meals[mealType] || [];
     const updatedLog: DailyDietLog = {
       ...dietLog,
@@ -100,6 +104,7 @@ export const DietTab: React.FC<DietTabProps> = ({
   };
 
   const handleRemoveFood = (mealType: MealType, foodId: string) => {
+    triggerHaptic(10);
     const currentList = dietLog.meals[mealType] || [];
     const updatedLog: DailyDietLog = {
       ...dietLog,
@@ -111,8 +116,8 @@ export const DietTab: React.FC<DietTabProps> = ({
     onUpdateDietLog(currentDate, updatedLog);
   };
 
-  // Water tracking
   const handleAddWater = (ml: number) => {
+    triggerHaptic(12);
     const newAmount = Math.max(0, (dietLog.waterMl || 0) + ml);
     onUpdateDietLog(currentDate, { ...dietLog, waterMl: newAmount });
   };
@@ -125,25 +130,25 @@ export const DietTab: React.FC<DietTabProps> = ({
   ];
 
   return (
-    <div className="space-y-6 pb-24">
+    <div className="space-y-4 pb-28">
       {/* Date Navigation Header */}
-      <div className="flex items-center justify-between bg-slate-900/90 border border-slate-800 rounded-2xl p-2.5 shadow-lg">
+      <div className="flex items-center justify-between ios-glass-card rounded-2xl p-2.5 shadow-lg">
         <button
           onClick={() => shiftDate(-1)}
-          className="p-2 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition active:scale-95"
+          className="p-2 rounded-xl text-slate-400 hover:text-white active:scale-90 transition"
           title="Giorno precedente"
         >
           <ChevronLeft className="w-5 h-5" />
         </button>
 
         <div className="text-center">
-          <div className="font-extrabold text-base text-white capitalize">
+          <div className="font-extrabold text-[16px] text-white capitalize tracking-tight">
             {isToday ? 'Oggi, ' : ''}
             {formatDateDisplay(currentDate)}
           </div>
           {!isToday && (
             <button
-              onClick={() => onDateChange(new Date().toISOString().split('T')[0])}
+              onClick={() => { triggerHaptic(8); onDateChange(new Date().toISOString().split('T')[0]); }}
               className="text-[11px] font-bold text-emerald-400 hover:underline"
             >
               Torna a Oggi
@@ -153,25 +158,25 @@ export const DietTab: React.FC<DietTabProps> = ({
 
         <button
           onClick={() => shiftDate(1)}
-          className="p-2 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition active:scale-95"
+          className="p-2 rounded-xl text-slate-400 hover:text-white active:scale-90 transition"
           title="Giorno successivo"
         >
           <ChevronRight className="w-5 h-5" />
         </button>
       </div>
 
-      {/* Main Nutrition Card (Calories & Macros) */}
-      <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-xl relative overflow-hidden">
-        <div className="flex items-center justify-between mb-4">
+      {/* Main Nutrition Card (iOS Health / Fitness Ring Style) */}
+      <div className="ios-glass-card rounded-3xl p-5 shadow-xl relative overflow-hidden">
+        <div className="flex items-center justify-between mb-3">
           <div>
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+            <span className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">
               Calorie Giornaliere
             </span>
-            <div className="flex items-baseline gap-2 mt-1">
-              <span className="text-3xl font-extrabold font-mono text-white">
+            <div className="flex items-baseline gap-2 mt-0.5">
+              <span className="text-3xl font-black font-mono text-white">
                 {totalCalories}
               </span>
-              <span className="text-sm font-semibold text-slate-400">
+              <span className="text-xs font-semibold text-slate-400">
                 / {profile.targetCalories} kcal
               </span>
             </div>
@@ -188,13 +193,13 @@ export const DietTab: React.FC<DietTabProps> = ({
             <span>
               {remainingCalories >= 0
                 ? `${remainingCalories} kcal rimaste`
-                : `${Math.abs(remainingCalories)} kcal oltre target`}
+                : `${Math.abs(remainingCalories)} oltre target`}
             </span>
           </div>
         </div>
 
-        {/* Calorie Bar */}
-        <div className="w-full bg-slate-800/80 h-3 rounded-full overflow-hidden mb-5">
+        {/* Calorie Progress Bar */}
+        <div className="w-full bg-slate-900 h-2.5 rounded-full overflow-hidden mb-4">
           <div
             className={`h-full transition-all duration-500 ${
               totalCalories > profile.targetCalories
@@ -207,15 +212,14 @@ export const DietTab: React.FC<DietTabProps> = ({
           />
         </div>
 
-        {/* 3 Macro Progress Bars */}
-        <div className="grid grid-cols-3 gap-3 pt-2 border-t border-slate-800/80">
-          {/* Protein */}
-          <div className="bg-slate-950/50 p-2.5 rounded-2xl border border-slate-800/60">
+        {/* 3 Macro Cards */}
+        <div className="grid grid-cols-3 gap-2.5 pt-2 border-t border-slate-800/80">
+          <div className="bg-slate-950/70 p-2.5 rounded-2xl border border-slate-800/60">
             <div className="flex items-center justify-between text-xs mb-1">
-              <span className="font-bold text-sky-400">Proteine</span>
-              <span className="font-mono text-slate-300 font-semibold">{totalProtein}g</span>
+              <span className="font-extrabold text-sky-400">Proteine</span>
+              <span className="font-mono text-slate-300 font-bold">{totalProtein}g</span>
             </div>
-            <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+            <div className="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden">
               <div
                 className="bg-sky-400 h-full rounded-full transition-all duration-300"
                 style={{
@@ -223,18 +227,17 @@ export const DietTab: React.FC<DietTabProps> = ({
                 }}
               />
             </div>
-            <div className="text-[10px] text-slate-500 mt-1 text-right">
-              Obiettivo: {profile.targetProtein}g
+            <div className="text-[10px] text-slate-500 mt-1 text-right font-medium">
+              Target: {profile.targetProtein}g
             </div>
           </div>
 
-          {/* Carbs */}
-          <div className="bg-slate-950/50 p-2.5 rounded-2xl border border-slate-800/60">
+          <div className="bg-slate-950/70 p-2.5 rounded-2xl border border-slate-800/60">
             <div className="flex items-center justify-between text-xs mb-1">
-              <span className="font-bold text-amber-400">Carboidrati</span>
-              <span className="font-mono text-slate-300 font-semibold">{totalCarbs}g</span>
+              <span className="font-extrabold text-amber-400">Carbo</span>
+              <span className="font-mono text-slate-300 font-bold">{totalCarbs}g</span>
             </div>
-            <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+            <div className="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden">
               <div
                 className="bg-amber-400 h-full rounded-full transition-all duration-300"
                 style={{
@@ -242,18 +245,17 @@ export const DietTab: React.FC<DietTabProps> = ({
                 }}
               />
             </div>
-            <div className="text-[10px] text-slate-500 mt-1 text-right">
-              Obiettivo: {profile.targetCarbs}g
+            <div className="text-[10px] text-slate-500 mt-1 text-right font-medium">
+              Target: {profile.targetCarbs}g
             </div>
           </div>
 
-          {/* Fat */}
-          <div className="bg-slate-950/50 p-2.5 rounded-2xl border border-slate-800/60">
+          <div className="bg-slate-950/70 p-2.5 rounded-2xl border border-slate-800/60">
             <div className="flex items-center justify-between text-xs mb-1">
-              <span className="font-bold text-rose-400">Grassi</span>
-              <span className="font-mono text-slate-300 font-semibold">{totalFat}g</span>
+              <span className="font-extrabold text-rose-400">Grassi</span>
+              <span className="font-mono text-slate-300 font-bold">{totalFat}g</span>
             </div>
-            <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+            <div className="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden">
               <div
                 className="bg-rose-400 h-full rounded-full transition-all duration-300"
                 style={{
@@ -261,22 +263,22 @@ export const DietTab: React.FC<DietTabProps> = ({
                 }}
               />
             </div>
-            <div className="text-[10px] text-slate-500 mt-1 text-right">
-              Obiettivo: {profile.targetFat}g
+            <div className="text-[10px] text-slate-500 mt-1 text-right font-medium">
+              Target: {profile.targetFat}g
             </div>
           </div>
         </div>
       </div>
 
       {/* Water Hydration Card */}
-      <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 flex items-center justify-between">
+      <div className="ios-glass-card rounded-2xl p-3.5 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400">
+          <div className="w-10 h-10 rounded-2xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400">
             <Droplets className="w-5 h-5" />
           </div>
           <div>
-            <div className="text-xs font-semibold text-slate-400">Acqua Bevuta</div>
-            <div className="text-base font-bold font-mono text-white">
+            <div className="text-xs font-bold text-slate-400">Idratazione</div>
+            <div className="text-[15px] font-black font-mono text-white">
               {dietLog.waterMl || 0} / {profile.targetWaterMl} ml
             </div>
           </div>
@@ -285,13 +287,13 @@ export const DietTab: React.FC<DietTabProps> = ({
         <div className="flex items-center gap-2">
           <button
             onClick={() => handleAddWater(250)}
-            className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-blue-400 font-bold text-xs active:scale-95 transition"
+            className="px-3.5 py-2 rounded-xl bg-slate-800 text-blue-400 font-bold text-xs active:scale-90 transition"
           >
             +250 ml
           </button>
           <button
             onClick={() => handleAddWater(500)}
-            className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-blue-400 font-bold text-xs active:scale-95 transition"
+            className="px-3.5 py-2 rounded-xl bg-slate-800 text-blue-400 font-bold text-xs active:scale-90 transition"
           >
             +500 ml
           </button>
@@ -299,7 +301,7 @@ export const DietTab: React.FC<DietTabProps> = ({
       </div>
 
       {/* Meals List */}
-      <div className="space-y-4">
+      <div className="space-y-3">
         {MEALS_CONFIG.map(({ type, label, icon: Icon }) => {
           const foods = dietLog.meals[type] || [];
           const mealKcal = foods.reduce((sum, f) => sum + (f.calories || 0), 0);
@@ -310,24 +312,24 @@ export const DietTab: React.FC<DietTabProps> = ({
           return (
             <div
               key={type}
-              className="bg-slate-900/90 border border-slate-800/90 rounded-2xl p-4 shadow-lg"
+              className="ios-glass-card rounded-2xl p-4 shadow-lg"
             >
               <div className="flex items-center justify-between pb-3 border-b border-slate-800/80">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-slate-300">
-                    <Icon className="w-4 h-4 text-emerald-400" />
+                  <div className="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center text-emerald-400">
+                    <Icon className="w-4 h-4" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-sm text-white">{label}</h4>
-                    <span className="text-[11px] text-slate-400">
+                    <h4 className="font-extrabold text-[15px] text-white">{label}</h4>
+                    <span className="text-[11px] text-slate-400 font-medium">
                       {mealKcal} kcal • P:{mealP}g C:{mealC}g F:{mealF}g
                     </span>
                   </div>
                 </div>
 
                 <button
-                  onClick={() => setModalMealType(type)}
-                  className="flex items-center gap-1 text-xs font-bold text-emerald-400 hover:text-emerald-300 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-95 transition"
+                  onClick={() => { triggerHaptic(8); setModalMealType(type); }}
+                  className="flex items-center gap-1 text-xs font-bold text-emerald-400 px-3 py-1.5 rounded-xl bg-slate-800/80 active:scale-90 transition"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Aggiungi</span>
@@ -335,11 +337,11 @@ export const DietTab: React.FC<DietTabProps> = ({
               </div>
 
               {/* Meal Items */}
-              <div className="mt-3 space-y-2">
+              <div className="mt-2.5 space-y-1.5">
                 {foods.map((food) => (
                   <div
                     key={food.id}
-                    className="p-2.5 bg-slate-950/60 border border-slate-800/60 rounded-xl flex items-center justify-between"
+                    className="p-2.5 bg-slate-950/70 border border-slate-800/60 rounded-xl flex items-center justify-between"
                   >
                     <div>
                       <div className="font-bold text-xs text-white">{food.name}</div>
@@ -351,8 +353,7 @@ export const DietTab: React.FC<DietTabProps> = ({
                     </div>
                     <button
                       onClick={() => handleRemoveFood(type, food.id)}
-                      className="p-1.5 text-slate-500 hover:text-red-400 rounded-lg hover:bg-slate-800 transition"
-                      title="Rimuovi alimento"
+                      className="p-2 text-slate-500 hover:text-red-400 rounded-lg active:scale-90 transition"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
@@ -361,7 +362,7 @@ export const DietTab: React.FC<DietTabProps> = ({
 
                 {foods.length === 0 && (
                   <div className="py-2 text-center text-xs text-slate-500">
-                    Nessun alimento registrato in {label.toLowerCase()}.
+                    Nessun alimento registrato.
                   </div>
                 )}
               </div>
@@ -370,7 +371,6 @@ export const DietTab: React.FC<DietTabProps> = ({
         })}
       </div>
 
-      {/* Add Food Modal */}
       {modalMealType && (
         <AddFoodModal
           mealType={modalMealType}

@@ -7,8 +7,6 @@ import {
   Dumbbell,
   X,
   ChevronDown,
-  MessageSquare,
-  Sparkles,
   Trophy
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
@@ -51,13 +49,20 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
   const [newExerciseCategory, setNewExerciseCategory] = useState<MuscleCategory>('petto');
   const [activeRestTimer, setActiveRestTimer] = useState<number | null>(null);
 
-  // Live timer tick
   useEffect(() => {
     const interval = setInterval(() => {
       setElapsedSeconds(Math.floor((Date.now() - workout.startTime) / 1000));
     }, 1000);
     return () => clearInterval(interval);
   }, [workout.startTime]);
+
+  const triggerHaptic = (ms = 10) => {
+    try {
+      if ('vibrate' in navigator) navigator.vibrate(ms);
+    } catch {
+      // Ignore
+    }
+  };
 
   const formatTimer = (totalSeconds: number) => {
     const hrs = Math.floor(totalSeconds / 3600);
@@ -69,8 +74,8 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
     return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
   };
 
-  // Add set to an exercise
   const handleAddSet = (exerciseId: string) => {
+    triggerHaptic(12);
     const updatedExercises = workout.exercises.map(ex => {
       if (ex.id !== exerciseId) return ex;
       const lastSet = ex.sets[ex.sets.length - 1];
@@ -91,7 +96,6 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
     });
   };
 
-  // Toggle set completed
   const handleToggleSetCompleted = (exerciseId: string, setId: string) => {
     let nowCompleted = false;
     const updatedExercises = workout.exercises.map(ex => {
@@ -107,8 +111,11 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
     });
 
     if (nowCompleted) {
+      triggerHaptic(20);
       if (soundEnabled) soundManager.playCheck();
       setActiveRestTimer(defaultRestSeconds);
+    } else {
+      triggerHaptic(8);
     }
 
     onUpdateWorkout({
@@ -118,7 +125,6 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
     });
   };
 
-  // Update set weight / reps
   const handleUpdateSet = (exerciseId: string, setId: string, field: 'weight' | 'reps', value: number) => {
     const updatedExercises = workout.exercises.map(ex => {
       if (ex.id !== exerciseId) return ex;
@@ -135,8 +141,8 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
     });
   };
 
-  // Remove set
   const handleRemoveSet = (exerciseId: string, setId: string) => {
+    triggerHaptic(8);
     const updatedExercises = workout.exercises.map(ex => {
       if (ex.id !== exerciseId) return ex;
       const filtered = ex.sets.filter(s => s.id !== setId);
@@ -151,9 +157,9 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
     });
   };
 
-  // Remove exercise
   const handleRemoveExercise = (exerciseId: string) => {
     if (confirm('Vuoi rimuovere questo esercizio dalla sessione?')) {
+      triggerHaptic(15);
       const updatedExercises = workout.exercises.filter(ex => ex.id !== exerciseId);
       onUpdateWorkout({
         ...workout,
@@ -163,8 +169,8 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
     }
   };
 
-  // Add selected exercise
   const handleSelectExercise = (exDef: ExerciseDefinition) => {
+    triggerHaptic(12);
     const newEx: WorkoutExercise = {
       id: 'we_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
       exerciseId: exDef.id,
@@ -189,7 +195,6 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
     setShowAddExerciseModal(false);
   };
 
-  // Finish workout
   const handleFinish = () => {
     let volume = 0;
     workout.exercises.forEach(ex => {
@@ -200,6 +205,7 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
       });
     });
 
+    triggerHaptic(35);
     try {
       confetti({
         particleCount: 80,
@@ -228,17 +234,17 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
   );
 
   return (
-    <div className="fixed inset-0 bg-slate-950 z-50 flex flex-col safe-top safe-bottom overflow-hidden">
-      {/* Top sticky bar */}
-      <div className="bg-slate-900/90 border-b border-slate-800 px-4 py-3 flex items-center justify-between backdrop-blur-md">
-        <div>
+    <div className="fixed inset-0 bg-slate-950 z-50 flex flex-col overflow-hidden">
+      {/* iOS Top sticky bar with Safe Area */}
+      <div className="ios-glass border-b border-slate-800/80 px-4 pt-[calc(env(safe-area-inset-top,0px)+0.65rem)] pb-3 flex items-center justify-between">
+        <div className="flex-1 mr-2">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
             <input
               type="text"
               value={workout.title}
               onChange={e => onUpdateWorkout({ ...workout, title: e.target.value })}
-              className="bg-transparent font-bold text-lg text-white border-b border-transparent hover:border-slate-700 focus:border-emerald-500 outline-none w-44"
+              className="bg-transparent font-extrabold text-[17px] text-white outline-none w-full border-b border-transparent focus:border-emerald-500 transition-colors"
               placeholder="Nome Allenamento"
             />
           </div>
@@ -251,24 +257,24 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
         <div className="flex items-center gap-2">
           <button
             onClick={onCancelWorkout}
-            className="px-3 py-1.5 text-xs text-slate-400 hover:text-red-400 rounded-lg hover:bg-slate-800/80 transition"
+            className="px-3 py-1.5 text-xs font-semibold text-slate-400 hover:text-red-400 rounded-xl hover:bg-slate-850 active:scale-95 transition"
           >
             Annulla
           </button>
           <button
             onClick={handleFinish}
-            className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-bold text-sm rounded-xl shadow-lg shadow-emerald-500/20 active:scale-95 transition"
+            className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 font-black text-xs rounded-xl shadow-lg shadow-emerald-500/25 active:scale-95 transition"
           >
-            <Trophy className="w-4 h-4" />
+            <Trophy className="w-3.5 h-3.5" />
             <span>Termina</span>
           </button>
         </div>
       </div>
 
-      {/* Main workout content list */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-32">
+      {/* Main workout scroll area with iOS momentum */}
+      <div className="flex-1 overflow-y-auto ios-scroll p-4 space-y-4 pb-[calc(env(safe-area-inset-bottom,0px)+6rem)]">
         {workout.exercises.length === 0 ? (
-          <div className="text-center py-12 px-4 rounded-3xl border border-dashed border-slate-800 bg-slate-900/40">
+          <div className="text-center py-14 px-4 rounded-3xl border border-dashed border-slate-800 bg-slate-900/40">
             <Dumbbell className="w-12 h-12 text-slate-600 mx-auto mb-3" />
             <h3 className="text-base font-bold text-slate-200">Nessun esercizio ancora inserito</h3>
             <p className="text-xs text-slate-400 mt-1 max-w-xs mx-auto">
@@ -276,7 +282,7 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
             </p>
             <button
               onClick={() => setShowAddExerciseModal(true)}
-              className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500 text-slate-950 font-bold text-sm shadow-lg shadow-emerald-500/20 active:scale-95 transition"
+              className="mt-4 inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-emerald-500 text-slate-950 font-bold text-sm shadow-lg shadow-emerald-500/25 active:scale-95 transition"
             >
               <Plus className="w-4 h-4" />
               <span>Aggiungi Esercizio</span>
@@ -286,19 +292,19 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
           workout.exercises.map((exercise) => (
             <div
               key={exercise.id}
-              className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-xl shadow-black/40"
+              className="ios-glass-card rounded-2xl p-4 shadow-xl"
             >
               <div className="flex items-center justify-between mb-3">
                 <div>
-                  <h4 className="font-bold text-base text-white">{exercise.name}</h4>
-                  <span className="text-[10px] uppercase font-semibold tracking-wider px-2 py-0.5 rounded-full bg-slate-800 text-slate-400">
+                  <h4 className="font-extrabold text-[16px] text-white tracking-tight">{exercise.name}</h4>
+                  <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-slate-800/80 text-emerald-400 mt-0.5 inline-block">
                     {exercise.category}
                   </span>
                 </div>
                 <div className="flex items-center gap-1">
                   <button
                     onClick={() => handleRemoveExercise(exercise.id)}
-                    className="p-1.5 text-slate-500 hover:text-red-400 rounded-lg hover:bg-slate-800 transition"
+                    className="p-2 text-slate-500 hover:text-red-400 rounded-xl hover:bg-slate-800 active:scale-90 transition"
                     title="Rimuovi esercizio"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -307,7 +313,7 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
               </div>
 
               {/* Sets Table Header */}
-              <div className="grid grid-cols-12 gap-2 text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2 px-1">
+              <div className="grid grid-cols-12 gap-2 text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2 px-1">
                 <span className="col-span-2 text-center">Set</span>
                 <span className="col-span-4 text-center">KG</span>
                 <span className="col-span-4 text-center">Reps</span>
@@ -321,19 +327,20 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
                     key={set.id}
                     className={`grid grid-cols-12 gap-2 items-center p-1.5 rounded-xl transition ${
                       set.completed
-                        ? 'bg-emerald-950/20 border border-emerald-500/30'
-                        : 'bg-slate-800/40 border border-slate-800/70'
+                        ? 'bg-emerald-950/30 border border-emerald-500/40'
+                        : 'bg-slate-900/60 border border-slate-800/80'
                     }`}
                   >
                     {/* Set number */}
-                    <div className="col-span-2 flex items-center justify-center font-bold text-xs text-slate-300">
+                    <div className="col-span-2 flex items-center justify-center font-bold text-xs text-slate-400 font-mono">
                       {set.setNumber}
                     </div>
 
-                    {/* Weight Input */}
-                    <div className="col-span-4 flex items-center bg-slate-950/70 rounded-lg border border-slate-700/60 overflow-hidden px-1">
+                    {/* Weight Input (font size 16px to prevent iOS auto-zoom) */}
+                    <div className="col-span-4 flex items-center bg-slate-950 rounded-xl border border-slate-700/80 overflow-hidden px-1.5">
                       <input
                         type="number"
+                        inputMode="decimal"
                         step="0.5"
                         min="0"
                         value={set.weight === 0 ? '' : set.weight}
@@ -346,15 +353,16 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
                             parseFloat(e.target.value) || 0
                           )
                         }
-                        className="w-full text-center py-1.5 font-bold text-sm text-white bg-transparent outline-none font-mono"
+                        className="w-full text-center py-2 font-bold text-[16px] text-white bg-transparent outline-none font-mono"
                       />
-                      <span className="text-[10px] text-slate-500 mr-1">kg</span>
+                      <span className="text-[10px] text-slate-500 font-semibold mr-1">kg</span>
                     </div>
 
-                    {/* Reps Input */}
-                    <div className="col-span-4 flex items-center bg-slate-950/70 rounded-lg border border-slate-700/60 overflow-hidden px-1">
+                    {/* Reps Input (font size 16px to prevent iOS auto-zoom) */}
+                    <div className="col-span-4 flex items-center bg-slate-950 rounded-xl border border-slate-700/80 overflow-hidden px-1.5">
                       <input
                         type="number"
+                        inputMode="numeric"
                         min="0"
                         value={set.reps === 0 ? '' : set.reps}
                         placeholder="0"
@@ -366,22 +374,22 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
                             parseInt(e.target.value, 10) || 0
                           )
                         }
-                        className="w-full text-center py-1.5 font-bold text-sm text-white bg-transparent outline-none font-mono"
+                        className="w-full text-center py-2 font-bold text-[16px] text-white bg-transparent outline-none font-mono"
                       />
-                      <span className="text-[10px] text-slate-500 mr-1">rp</span>
+                      <span className="text-[10px] text-slate-500 font-semibold mr-1">rp</span>
                     </div>
 
-                    {/* Complete checkmark */}
+                    {/* Complete checkmark with large tap target */}
                     <div className="col-span-2 flex items-center justify-center">
                       <button
                         onClick={() => handleToggleSetCompleted(exercise.id, set.id)}
-                        className={`w-8 h-8 rounded-lg flex items-center justify-center transition active:scale-90 ${
+                        className={`w-9 h-9 rounded-xl flex items-center justify-center transition active:scale-90 ${
                           set.completed
                             ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/30'
                             : 'bg-slate-800 text-slate-500 hover:text-slate-200'
                         }`}
                       >
-                        <Check className="w-4 h-4 stroke-[3]" />
+                        <Check className="w-5 h-5 stroke-[3]" />
                       </button>
                     </div>
                   </div>
@@ -392,9 +400,9 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
               <div className="mt-3 flex items-center justify-between pt-2 border-t border-slate-800/80">
                 <button
                   onClick={() => handleAddSet(exercise.id)}
-                  className="flex items-center gap-1.5 text-xs font-bold text-emerald-400 hover:text-emerald-300 py-1 px-2 rounded-lg hover:bg-slate-800 transition active:scale-95"
+                  className="flex items-center gap-1.5 text-xs font-bold text-emerald-400 py-1.5 px-2.5 rounded-xl hover:bg-slate-800 active:scale-95 transition"
                 >
-                  <Plus className="w-3.5 h-3.5" />
+                  <Plus className="w-4 h-4" />
                   <span>Aggiungi Serie</span>
                 </button>
 
@@ -403,7 +411,7 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
                     onClick={() =>
                       handleRemoveSet(exercise.id, exercise.sets[exercise.sets.length - 1].id)
                     }
-                    className="text-xs text-slate-500 hover:text-slate-400 py-1 px-2"
+                    className="text-xs text-slate-500 hover:text-slate-400 py-1 px-2 active:scale-95 transition"
                   >
                     Rimuovi ultima
                   </button>
@@ -416,9 +424,9 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
         {workout.exercises.length > 0 && (
           <button
             onClick={() => setShowAddExerciseModal(true)}
-            className="w-full py-3.5 rounded-2xl border border-dashed border-slate-700 hover:border-emerald-500/50 bg-slate-900/40 text-slate-300 hover:text-emerald-400 font-bold text-sm flex items-center justify-center gap-2 active:scale-98 transition shadow-lg"
+            className="w-full py-4 rounded-2xl border border-dashed border-slate-700 hover:border-emerald-500/50 bg-slate-900/50 text-slate-300 font-bold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition shadow-lg"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-4 h-4 text-emerald-400" />
             <span>Aggiungi Altro Esercizio</span>
           </button>
         )}
@@ -433,49 +441,52 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
         />
       )}
 
-      {/* Exercise Picker Modal */}
+      {/* Exercise Picker Modal - iOS Native Sheet */}
       {showAddExerciseModal && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex flex-col justify-end sm:justify-center p-0 sm:p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-t-3xl sm:rounded-2xl max-h-[85vh] flex flex-col shadow-2xl animate-in slide-in-from-bottom duration-200">
-            <div className="p-4 border-b border-slate-800 flex items-center justify-between">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex flex-col justify-end">
+          <div className="bg-slate-900 border-t border-slate-800 rounded-t-[28px] max-h-[85vh] flex flex-col shadow-2xl animate-in slide-in-from-bottom duration-250 pb-[calc(env(safe-area-inset-bottom,0px)+1rem)]">
+            {/* iOS Sheet drag handle */}
+            <div className="w-10 h-1 bg-slate-700/80 rounded-full mx-auto my-2.5" />
+
+            <div className="px-4 pb-3 flex items-center justify-between border-b border-slate-800">
               <div>
-                <h3 className="font-bold text-lg text-white">Scegli Esercizio</h3>
-                <p className="text-xs text-slate-400">Seleziona o crea un nuovo esercizio</p>
+                <h3 className="font-extrabold text-base text-white">Scegli Esercizio</h3>
+                <p className="text-xs text-slate-400">Seleziona dalla libreria o creane uno</p>
               </div>
               <button
                 onClick={() => setShowAddExerciseModal(false)}
-                className="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center"
+                className="w-8 h-8 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center active:scale-90"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="p-4 border-b border-slate-800">
+            <div className="p-3 border-b border-slate-800">
               <input
                 type="text"
-                placeholder="Cerca esercizio (es. Panca, Squat, Curl)..."
+                placeholder="Cerca (Panca, Squat, Trazioni)..."
                 value={exerciseSearch}
                 onChange={(e) => setExerciseSearch(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 outline-none focus:border-emerald-500"
+                className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-[16px] text-white placeholder-slate-500 outline-none focus:border-emerald-500"
               />
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 space-y-2">
+            <div className="flex-1 overflow-y-auto ios-scroll p-4 space-y-2">
               {filteredLibrary.map((ex) => (
                 <button
                   key={ex.id}
                   onClick={() => handleSelectExercise(ex)}
-                  className="w-full text-left p-3 rounded-xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700/50 flex items-center justify-between group active:scale-98 transition"
+                  className="w-full text-left p-3 rounded-2xl bg-slate-950/70 border border-slate-800/80 flex items-center justify-between active:scale-[0.98] transition"
                 >
                   <div>
-                    <div className="font-semibold text-sm text-white group-hover:text-emerald-400 transition">
+                    <div className="font-bold text-sm text-white">
                       {ex.name}
                     </div>
-                    <span className="text-[10px] uppercase font-bold text-slate-400">
+                    <span className="text-[10px] uppercase font-bold text-emerald-400">
                       {ex.category}
                     </span>
                   </div>
-                  <Plus className="w-4 h-4 text-slate-500 group-hover:text-emerald-400" />
+                  <Plus className="w-4 h-4 text-emerald-400" />
                 </button>
               ))}
 
@@ -484,35 +495,19 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
                   <p className="text-xs text-slate-400 mb-3">
                     Nessun esercizio trovato per "{exerciseSearch}"
                   </p>
-                  <div className="flex flex-col gap-2 max-w-xs mx-auto">
-                    <select
-                      value={newExerciseCategory}
-                      onChange={(e) => setNewExerciseCategory(e.target.value as MuscleCategory)}
-                      className="px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-xs text-slate-300 outline-none"
-                    >
-                      <option value="petto">Petto</option>
-                      <option value="schiena">Schiena</option>
-                      <option value="gambe">Gambe</option>
-                      <option value="spalle">Spalle</option>
-                      <option value="braccia">Braccia</option>
-                      <option value="addome">Addome</option>
-                      <option value="cardio">Cardio</option>
-                      <option value="altro">Altro</option>
-                    </select>
-                    <button
-                      onClick={() => {
-                        if (!exerciseSearch.trim()) return;
-                        const created = onAddNewExerciseToLibrary(
-                          exerciseSearch.trim(),
-                          newExerciseCategory
-                        );
-                        handleSelectExercise(created);
-                      }}
-                      className="py-2.5 px-4 bg-emerald-500 text-slate-950 font-bold text-xs rounded-xl shadow-lg active:scale-95 transition"
-                    >
-                      Crea "{exerciseSearch}" e aggiungi
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => {
+                      if (!exerciseSearch.trim()) return;
+                      const created = onAddNewExerciseToLibrary(
+                        exerciseSearch.trim(),
+                        newExerciseCategory
+                      );
+                      handleSelectExercise(created);
+                    }}
+                    className="py-2.5 px-4 bg-emerald-500 text-slate-950 font-bold text-xs rounded-xl shadow-lg active:scale-95 transition"
+                  >
+                    Crea "{exerciseSearch}" e aggiungi
+                  </button>
                 </div>
               )}
             </div>

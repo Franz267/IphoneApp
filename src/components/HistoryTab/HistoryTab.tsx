@@ -7,9 +7,7 @@ import {
   Trash2,
   ChevronDown,
   ChevronUp,
-  Scale,
-  Plus,
-  Flame
+  Scale
 } from 'lucide-react';
 import { WeightRecord, WorkoutSession } from '../../types';
 
@@ -30,7 +28,12 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({
   const [expandedSessionId, setExpandedSessionId] = useState<string | null>(null);
   const [inputWeight, setInputWeight] = useState<string>('');
 
-  // Calculate Personal Records (PRs) across all sessions
+  const triggerHaptic = (ms = 10) => {
+    try {
+      if ('vibrate' in navigator) navigator.vibrate(ms);
+    } catch {}
+  };
+
   const personalRecords: Record<string, { maxWeight: number; reps: number; date: string }> = {};
 
   sessions.forEach((sess) => {
@@ -58,6 +61,7 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({
     e.preventDefault();
     const w = parseFloat(inputWeight);
     if (w > 20 && w < 300) {
+      triggerHaptic(15);
       onAddWeightRecord(w);
       setInputWeight('');
     }
@@ -66,35 +70,35 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({
   const latestWeight = weightRecords.length > 0 ? weightRecords[weightRecords.length - 1] : null;
 
   return (
-    <div className="space-y-6 pb-24">
-      {/* Subtab navigation */}
-      <div className="grid grid-cols-3 gap-2 bg-slate-900/90 border border-slate-800 p-1.5 rounded-2xl">
+    <div className="space-y-4 pb-28">
+      {/* iOS Segmented Control */}
+      <div className="grid grid-cols-3 p-1 bg-slate-950 border border-slate-800 rounded-2xl">
         <button
-          onClick={() => setActiveSubTab('workouts')}
-          className={`py-2 text-xs font-bold rounded-xl transition ${
+          onClick={() => { triggerHaptic(8); setActiveSubTab('workouts'); }}
+          className={`py-2 text-xs font-bold rounded-xl transition active:scale-95 ${
             activeSubTab === 'workouts'
-              ? 'bg-emerald-500 text-slate-950 shadow-md'
-              : 'text-slate-400 hover:text-white'
+              ? 'bg-slate-850 text-white shadow-md'
+              : 'text-slate-400'
           }`}
         >
           Allenamenti ({sessions.length})
         </button>
         <button
-          onClick={() => setActiveSubTab('prs')}
-          className={`py-2 text-xs font-bold rounded-xl transition ${
+          onClick={() => { triggerHaptic(8); setActiveSubTab('prs'); }}
+          className={`py-2 text-xs font-bold rounded-xl transition active:scale-95 ${
             activeSubTab === 'prs'
-              ? 'bg-emerald-500 text-slate-950 shadow-md'
-              : 'text-slate-400 hover:text-white'
+              ? 'bg-slate-850 text-white shadow-md'
+              : 'text-slate-400'
           }`}
         >
           Record (PR) 🏆
         </button>
         <button
-          onClick={() => setActiveSubTab('weight')}
-          className={`py-2 text-xs font-bold rounded-xl transition ${
+          onClick={() => { triggerHaptic(8); setActiveSubTab('weight'); }}
+          className={`py-2 text-xs font-bold rounded-xl transition active:scale-95 ${
             activeSubTab === 'weight'
-              ? 'bg-emerald-500 text-slate-950 shadow-md'
-              : 'text-slate-400 hover:text-white'
+              ? 'bg-slate-850 text-white shadow-md'
+              : 'text-slate-400'
           }`}
         >
           Peso Corporeo
@@ -103,28 +107,30 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({
 
       {/* Subtab 1: Workouts History */}
       {activeSubTab === 'workouts' && (
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           {sessions.map((sess) => {
             const isExpanded = expandedSessionId === sess.id;
             const formattedDate = new Date(sess.date).toLocaleDateString('it-IT', {
               weekday: 'short',
               day: 'numeric',
-              month: 'long',
-              year: 'numeric'
+              month: 'long'
             });
 
             return (
               <div
                 key={sess.id}
-                className="bg-slate-900/90 border border-slate-800/90 rounded-2xl overflow-hidden shadow-lg transition"
+                className="ios-glass-card rounded-2xl overflow-hidden shadow-lg transition"
               >
                 <div
-                  onClick={() => setExpandedSessionId(isExpanded ? null : sess.id)}
-                  className="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-800/40 transition"
+                  onClick={() => {
+                    triggerHaptic(8);
+                    setExpandedSessionId(isExpanded ? null : sess.id);
+                  }}
+                  className="p-4 flex items-center justify-between cursor-pointer active:bg-slate-850 transition"
                 >
                   <div>
-                    <h4 className="font-bold text-base text-white">{sess.title}</h4>
-                    <div className="flex items-center gap-2 mt-1 text-xs text-slate-400">
+                    <h4 className="font-extrabold text-[16px] text-white tracking-tight">{sess.title}</h4>
+                    <div className="flex items-center gap-2 mt-0.5 text-xs text-slate-400">
                       <span>{formattedDate}</span>
                       <span>•</span>
                       <span>{Math.round(sess.durationSeconds / 60)} min</span>
@@ -137,11 +143,12 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        if (confirm(`Eliminare la sessione "${sess.title}" del ${formattedDate}?`)) {
+                        if (confirm(`Eliminare la sessione "${sess.title}"?`)) {
+                          triggerHaptic(12);
                           onDeleteSession(sess.id);
                         }
                       }}
-                      className="p-2 text-slate-500 hover:text-red-400 rounded-lg hover:bg-slate-800"
+                      className="p-2 text-slate-500 hover:text-red-400 rounded-xl active:scale-90"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -158,15 +165,15 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({
                   <div className="px-4 pb-4 pt-1 border-t border-slate-800/80 space-y-3 bg-slate-950/40">
                     {sess.exercises.map((ex) => (
                       <div key={ex.id} className="pt-2">
-                        <div className="font-semibold text-xs text-slate-200">{ex.name}</div>
+                        <div className="font-bold text-xs text-slate-300">{ex.name}</div>
                         <div className="flex flex-wrap gap-1.5 mt-1.5">
                           {ex.sets.map((s) => (
                             <span
                               key={s.id}
-                              className={`text-[11px] px-2 py-0.5 rounded-md font-mono ${
+                              className={`text-[11px] px-2.5 py-1 rounded-lg font-mono ${
                                 s.completed
-                                  ? 'bg-slate-800 border border-emerald-500/40 text-emerald-300 font-bold'
-                                  : 'bg-slate-800/50 text-slate-500'
+                                  ? 'bg-slate-900 border border-emerald-500/40 text-emerald-300 font-bold'
+                                  : 'bg-slate-900/60 text-slate-500'
                               }`}
                             >
                               {s.weight}kg × {s.reps}
@@ -210,7 +217,7 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({
             {prList.map(([exName, record]) => (
               <div
                 key={exName}
-                className="p-3.5 bg-slate-900/80 border border-slate-800 rounded-2xl flex items-center justify-between"
+                className="p-3.5 ios-glass-card rounded-2xl flex items-center justify-between"
               >
                 <div>
                   <h4 className="font-bold text-sm text-white">{exName}</h4>
@@ -229,7 +236,7 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({
 
             {prList.length === 0 && (
               <div className="p-8 text-center text-xs text-slate-500">
-                Completa serie con pesi negli allenamenti per vedere qui i tuoi record!
+                Completa serie con carichi negli allenamenti per vedere qui i tuoi record!
               </div>
             )}
           </div>
@@ -238,38 +245,37 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({
 
       {/* Subtab 3: Bodyweight Tracking */}
       {activeSubTab === 'weight' && (
-        <div className="space-y-4">
-          {/* Quick Input Form */}
+        <div className="space-y-3">
           <form
             onSubmit={handleSaveWeight}
-            className="p-4 bg-slate-900 border border-slate-800 rounded-2xl flex items-center gap-3"
+            className="p-3.5 ios-glass-card rounded-2xl flex items-center gap-3"
           >
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+            <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
               <Scale className="w-5 h-5" />
             </div>
             <div className="flex-1">
               <input
                 type="number"
+                inputMode="decimal"
                 step="0.1"
                 min="30"
                 max="300"
                 placeholder="Es. 74.5 kg"
                 value={inputWeight}
                 onChange={(e) => setInputWeight(e.target.value)}
-                className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-sm font-bold text-white font-mono outline-none focus:border-emerald-500"
+                className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-[16px] font-bold text-white font-mono outline-none focus:border-emerald-500"
               />
             </div>
             <button
               type="submit"
-              className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs rounded-xl active:scale-95 transition"
+              className="px-4 py-2.5 bg-emerald-500 text-slate-950 font-bold text-xs rounded-xl active:scale-95 transition"
             >
               Registra
             </button>
           </form>
 
-          {/* Current weight display */}
           {latestWeight && (
-            <div className="p-4 bg-slate-900/60 border border-slate-800 rounded-2xl flex items-center justify-between">
+            <div className="p-4 ios-glass-card rounded-2xl flex items-center justify-between">
               <div>
                 <span className="text-xs text-slate-400">Ultimo peso registrato</span>
                 <div className="text-2xl font-black font-mono text-white mt-0.5">
@@ -282,7 +288,6 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({
             </div>
           )}
 
-          {/* Weight Log History */}
           <div className="space-y-2">
             <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider px-1">
               Storico Pesate ({weightRecords.length})
@@ -290,14 +295,13 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({
             {weightRecords.slice().reverse().map((r, idx) => (
               <div
                 key={idx}
-                className="p-3 bg-slate-950/60 border border-slate-800/60 rounded-xl flex items-center justify-between"
+                className="p-3 bg-slate-950/70 border border-slate-800/60 rounded-xl flex items-center justify-between"
               >
                 <span className="text-xs text-slate-300">
                   {new Date(r.date).toLocaleDateString('it-IT', {
                     weekday: 'short',
                     day: 'numeric',
-                    month: 'short',
-                    year: 'numeric'
+                    month: 'short'
                   })}
                 </span>
                 <span className="font-mono font-bold text-sm text-emerald-400">

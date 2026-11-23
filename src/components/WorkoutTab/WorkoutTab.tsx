@@ -7,7 +7,11 @@ import {
   ChevronRight,
   Edit2,
   Trash2,
-  Layers
+  Layers,
+  ShieldCheck,
+  ChevronDown,
+  ChevronUp,
+  AlertCircle
 } from 'lucide-react';
 import {
   ExerciseDefinition,
@@ -15,6 +19,7 @@ import {
   WorkoutRoutine,
   WorkoutSession
 } from '../../types';
+import { WORKOUT_GUIDELINES } from '../../utils/defaults';
 import { RoutineManagerModal } from './RoutineManagerModal';
 
 interface WorkoutTabProps {
@@ -44,6 +49,7 @@ export const WorkoutTab: React.FC<WorkoutTabProps> = ({
   onViewHistory
 }) => {
   const [editingRoutine, setEditingRoutine] = useState<WorkoutRoutine | null | 'new'>(null);
+  const [showGuidelines, setShowGuidelines] = useState<boolean>(false);
 
   const triggerHaptic = (ms = 10) => {
     try {
@@ -79,6 +85,44 @@ export const WorkoutTab: React.FC<WorkoutTabProps> = ({
           </div>
         </div>
       )}
+
+      {/* Program Guidelines Card (Tutela Crociato & Progressione PDF) */}
+      <div className="ios-glass-card rounded-2xl p-4 shadow-lg border border-emerald-500/30">
+        <div
+          onClick={() => { triggerHaptic(8); setShowGuidelines(!showGuidelines); }}
+          className="flex items-center justify-between cursor-pointer"
+        >
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+              <ShieldCheck className="w-4 h-4" />
+            </div>
+            <div>
+              <h4 className="font-extrabold text-sm text-white flex items-center gap-1.5">
+                Scheda 3 Giorni • Tutela Crociato
+              </h4>
+              <p className="text-[11px] text-slate-400">
+                Regole RIR 1-2, progressione e riscaldamento ginocchio
+              </p>
+            </div>
+          </div>
+          {showGuidelines ? (
+            <ChevronUp className="w-4 h-4 text-slate-400" />
+          ) : (
+            <ChevronDown className="w-4 h-4 text-slate-400" />
+          )}
+        </div>
+
+        {showGuidelines && (
+          <div className="mt-3 pt-3 border-t border-slate-800 space-y-2.5 text-xs text-slate-300">
+            {WORKOUT_GUIDELINES.rules.map((rule, idx) => (
+              <div key={idx} className="p-2.5 bg-slate-950/60 rounded-xl border border-slate-800/80">
+                <div className="font-bold text-emerald-400 mb-0.5">{rule.title}</div>
+                <div className="text-slate-300 text-[11px] leading-relaxed">{rule.desc}</div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Hero Quick Action */}
       <div className="flex gap-3">
@@ -125,7 +169,7 @@ export const WorkoutTab: React.FC<WorkoutTabProps> = ({
                 <div className="flex-1 pr-2">
                   <h4 className="font-extrabold text-[16px] text-white tracking-tight">{routine.name}</h4>
                   {routine.description && (
-                    <p className="text-xs text-slate-400 mt-0.5 line-clamp-1">
+                    <p className="text-xs text-slate-400 mt-0.5 line-clamp-2">
                       {routine.description}
                     </p>
                   )}

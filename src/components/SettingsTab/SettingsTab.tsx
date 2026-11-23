@@ -28,11 +28,34 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
   const [formData, setFormData] = useState<UserProfile>(profile);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [importStatus, setImportStatus] = useState<string | null>(null);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const triggerHaptic = (ms = 10) => {
     try {
       if ('vibrate' in navigator) navigator.vibrate(ms);
     } catch {}
+  };
+
+  const handleForceUpdateApp = async () => {
+    triggerHaptic(25);
+    setIsUpdating(true);
+    try {
+      if ('serviceWorker' in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        for (const reg of registrations) {
+          await reg.unregister();
+        }
+      }
+      if ('caches' in window) {
+        const keys = await caches.keys();
+        for (const key of keys) {
+          await caches.delete(key);
+        }
+      }
+    } catch (e) {
+      console.warn('Cache clear error:', e);
+    }
+    window.location.reload();
   };
 
   const handleSaveProfile = (e: React.FormEvent) => {
@@ -125,6 +148,14 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
                 <span>Tocca <strong>"Aggiungi"</strong> in alto a destra. Fatto! 🎉</span>
               </li>
             </ol>
+
+            <button
+              onClick={handleForceUpdateApp}
+              disabled={isUpdating}
+              className="mt-4 w-full py-2.5 px-3 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 font-bold text-xs flex items-center justify-center gap-2 active:scale-95 transition"
+            >
+              <span>{isUpdating ? 'Ricaricamento in corso...' : 'Aggiorna App / Ricarica Cache 🔄'}</span>
+            </button>
           </div>
         </div>
       </div>

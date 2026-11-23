@@ -56,7 +56,15 @@ export const Storage = {
 
   // --- EXERCISES ---
   getExercises(): ExerciseDefinition[] {
-    return safeGet<ExerciseDefinition[]>(STORAGE_KEYS.EXERCISES, DEFAULT_EXERCISES);
+    const saved = safeGet<ExerciseDefinition[]>(STORAGE_KEYS.EXERCISES, DEFAULT_EXERCISES);
+    const existingIds = new Set(saved.map(e => e.id));
+    const missing = DEFAULT_EXERCISES.filter(e => !existingIds.has(e.id));
+    if (missing.length > 0) {
+      const merged = [...missing, ...saved];
+      this.saveExercises(merged);
+      return merged;
+    }
+    return saved;
   },
   saveExercises(exercises: ExerciseDefinition[]): void {
     safeSet(STORAGE_KEYS.EXERCISES, exercises);
@@ -70,7 +78,15 @@ export const Storage = {
 
   // --- ROUTINES ---
   getRoutines(): WorkoutRoutine[] {
-    return safeGet<WorkoutRoutine[]>(STORAGE_KEYS.ROUTINES, DEFAULT_ROUTINES);
+    const saved = safeGet<WorkoutRoutine[]>(STORAGE_KEYS.ROUTINES, DEFAULT_ROUTINES);
+    const hasNewPdfRoutines = saved.some(r => r.id === 'routine_day1_upper');
+    if (!hasNewPdfRoutines) {
+      // Prepend the new 3-day PDF routines at the very top!
+      const merged = [...DEFAULT_ROUTINES, ...saved.filter(r => !DEFAULT_ROUTINES.some(d => d.id === r.id))];
+      this.saveRoutines(merged);
+      return merged;
+    }
+    return saved;
   },
   saveRoutines(routines: WorkoutRoutine[]): void {
     safeSet(STORAGE_KEYS.ROUTINES, routines);

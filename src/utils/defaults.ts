@@ -1,85 +1,108 @@
 import { ExerciseDefinition, SavedFood, UserProfile, WorkoutRoutine } from '../types';
 
 export const DEFAULT_EXERCISES: ExerciseDefinition[] = [
-  // Petto
+  // Giorno 1 - Upper
+  { id: 'ex_chest_press_mach', name: 'Chest Press (Macchina)', category: 'petto', defaultRestSeconds: 105 },
+  { id: 'ex_lat_machine_prona', name: 'Lat Machine (Presa prona larga)', category: 'schiena', defaultRestSeconds: 105 },
+  { id: 'ex_shoulder_press_mach', name: 'Shoulder Press (Macchina)', category: 'spalle', defaultRestSeconds: 90 },
+  { id: 'ex_pulley_basso', name: 'Pulley Basso (o Row Machine)', category: 'schiena', defaultRestSeconds: 90 },
+  { id: 'ex_alzate_laterali', name: 'Alzate Laterali (Manubri o Macchina)', category: 'spalle', defaultRestSeconds: 60 },
+  { id: 'ex_pushdown_cavi', name: 'Pushdown ai Cavi (Corda o barra - Tricipiti)', category: 'braccia', defaultRestSeconds: 60 },
+  { id: 'ex_curl_cavi_bassi', name: 'Curl ai Cavi Bassi o Manubri (Bicipiti)', category: 'braccia', defaultRestSeconds: 60 },
+
+  // Giorno 2 - Lower (Salvaginocchio)
+  { id: 'ex_leg_press_45', name: 'Leg Press 45° o Orizzontale (Piedi medio-alti)', category: 'gambe', defaultRestSeconds: 120 },
+  { id: 'ex_leg_curl', name: 'Leg Curl (Seduto o Sdraiato - Femorali)', category: 'gambe', defaultRestSeconds: 90 },
+  { id: 'ex_leg_extension', name: 'Leg Extension (Carico controllato, no iperestensione)', category: 'gambe', defaultRestSeconds: 75 },
+  { id: 'ex_hip_thrust_mach', name: 'Hip Thrust alla Macchina (o Glute Machine)', category: 'gambe', defaultRestSeconds: 90 },
+  { id: 'ex_calf_machine', name: 'Calf Machine (Polpacci in piedi o seduto)', category: 'gambe', defaultRestSeconds: 60 },
+  { id: 'ex_crunch_machine', name: 'Crunch alla Macchina (o Plank 45-60")', category: 'addome', defaultRestSeconds: 60 },
+
+  // Giorno 3 - Full Body + Tricipiti & Avambracci
+  { id: 'ex_hack_squat', name: 'Hack Squat o Leg Press (Carico moderato)', category: 'gambe', defaultRestSeconds: 120 },
+  { id: 'ex_pectoral_machine', name: 'Pectoral Machine (o Chest Press Inclinata)', category: 'petto', defaultRestSeconds: 90 },
+  { id: 'ex_vertical_row', name: 'Vertical Row / T-Bar Guidata (Dorso)', category: 'schiena', defaultRestSeconds: 90 },
+  { id: 'ex_french_press_cavi', name: 'French Press ai Cavi sopra la testa (Capo lungo)', category: 'braccia', defaultRestSeconds: 75 },
+  { id: 'ex_hammer_curl', name: 'Hammer Curl (Manubri o corda - Brachioradiale)', category: 'braccia', defaultRestSeconds: 60 },
+  { id: 'ex_wrist_curl', name: 'Wrist Curl (Flessioni polsi - Avambracci)', category: 'braccia', defaultRestSeconds: 50 },
+  { id: 'ex_crunch_inverso', name: 'Crunch Inverso o Cable Crunch (Addome)', category: 'addome', defaultRestSeconds: 60 },
+
+  // Altri esercizi comuni
   { id: 'ex_bench_press', name: 'Panca Piana con Bilanciere', category: 'petto', defaultRestSeconds: 120 },
-  { id: 'ex_incline_dumbbells', name: 'Panca Inclinata con Manubri', category: 'petto', defaultRestSeconds: 90 },
-  { id: 'ex_chest_cable_fly', name: 'Croci ai Cavi', category: 'petto', defaultRestSeconds: 60 },
-  { id: 'ex_dips', name: 'Dips alle Parallele', category: 'petto', defaultRestSeconds: 90 },
-  { id: 'ex_pushups', name: 'Piegamenti sulle Braccia (Push-ups)', category: 'petto', defaultRestSeconds: 60 },
-  
-  // Schiena
-  { id: 'ex_deadlift', name: 'Stacco da Terra (Deadlift)', category: 'schiena', defaultRestSeconds: 150 },
-  { id: 'ex_pullups', name: 'Trazioni alla Sbarra', category: 'schiena', defaultRestSeconds: 90 },
-  { id: 'ex_barbell_row', name: 'Rematore con Bilanciere', category: 'schiena', defaultRestSeconds: 90 },
-  { id: 'ex_lat_machine', name: 'Lat Machine avanti', category: 'schiena', defaultRestSeconds: 75 },
-  { id: 'ex_pulley', name: 'Pulley Basso al Cavo', category: 'schiena', defaultRestSeconds: 75 },
-
-  // Gambe
   { id: 'ex_squat', name: 'Squat con Bilanciere', category: 'gambe', defaultRestSeconds: 150 },
-  { id: 'ex_leg_press', name: 'Leg Press 45°', category: 'gambe', defaultRestSeconds: 90 },
-  { id: 'ex_leg_extension', name: 'Leg Extension', category: 'gambe', defaultRestSeconds: 60 },
-  { id: 'ex_leg_curl', name: 'Leg Curl (Sdraiato o Seduto)', category: 'gambe', defaultRestSeconds: 60 },
-  { id: 'ex_lunges', name: 'Affondi con Manubri', category: 'gambe', defaultRestSeconds: 75 },
-  { id: 'ex_calf_raise', name: 'Calf Raise (Polpacci)', category: 'gambe', defaultRestSeconds: 60 },
-
-  // Spalle
-  { id: 'ex_overhead_press', name: 'Military Press / Lento Avanti', category: 'spalle', defaultRestSeconds: 90 },
-  { id: 'ex_lateral_raise', name: 'Alzate Laterali con Manubri', category: 'spalle', defaultRestSeconds: 60 },
-  { id: 'ex_face_pull', name: 'Face Pull ai Cavi', category: 'spalle', defaultRestSeconds: 60 },
-  { id: 'ex_shoulder_press_db', name: 'Spinte Spalle con Manubri', category: 'spalle', defaultRestSeconds: 90 },
-
-  // Braccia
-  { id: 'ex_barbell_curl', name: 'Curl con Bilanciere EZ', category: 'braccia', defaultRestSeconds: 60 },
-  { id: 'ex_hammer_curl', name: 'Hammer Curl con Manubri', category: 'braccia', defaultRestSeconds: 60 },
-  { id: 'ex_triceps_pushdown', name: 'Pushdown Tricipiti al Cavo', category: 'braccia', defaultRestSeconds: 60 },
-  { id: 'ex_french_press', name: 'French Press su Panca', category: 'braccia', defaultRestSeconds: 75 },
-
-  // Addome & Cardio
-  { id: 'ex_plank', name: 'Plank Addominale', category: 'addome', defaultRestSeconds: 60 },
-  { id: 'ex_cable_crunch', name: 'Crunch ai Cavi', category: 'addome', defaultRestSeconds: 60 },
-  { id: 'ex_leg_raise', name: 'Leg Raise alla Sbarra', category: 'addome', defaultRestSeconds: 60 },
-  { id: 'ex_treadmill', name: 'Tapis Roulant / Corsa', category: 'cardio', defaultRestSeconds: 0 }
+  { id: 'ex_pullups', name: 'Trazioni alla Sbarra', category: 'schiena', defaultRestSeconds: 90 },
+  { id: 'ex_plank', name: 'Plank Addominale', category: 'addome', defaultRestSeconds: 60 }
 ];
 
 export const DEFAULT_ROUTINES: WorkoutRoutine[] = [
   {
-    id: 'routine_push',
-    name: 'Push (Spinta: Petto, Spalle, Tricipiti)',
-    description: 'Panca piana, spinte con manubri, lento avanti, alzate laterali e tricipiti.',
+    id: 'routine_day1_upper',
+    name: 'Giorno 1 – Lunedì • Upper',
+    description: 'Chest Press, Lat Machine, Shoulder Press, Pulley, Alzate laterali, Pushdown e Curl bicipiti.',
     exercises: [
-      { exerciseId: 'ex_bench_press', targetSets: 4, targetReps: '8-10', targetWeight: 60 },
-      { exerciseId: 'ex_incline_dumbbells', targetSets: 3, targetReps: '10-12', targetWeight: 22 },
-      { exerciseId: 'ex_overhead_press', targetSets: 3, targetReps: '8-10', targetWeight: 40 },
-      { exerciseId: 'ex_lateral_raise', targetSets: 4, targetReps: '12-15', targetWeight: 10 },
-      { exerciseId: 'ex_triceps_pushdown', targetSets: 3, targetReps: '12-15', targetWeight: 25 }
+      { exerciseId: 'ex_chest_press_mach', targetSets: 4, targetReps: '8-10', targetWeight: 40 },
+      { exerciseId: 'ex_lat_machine_prona', targetSets: 4, targetReps: '8-10', targetWeight: 45 },
+      { exerciseId: 'ex_shoulder_press_mach', targetSets: 3, targetReps: '10-12', targetWeight: 25 },
+      { exerciseId: 'ex_pulley_basso', targetSets: 3, targetReps: '10-12', targetWeight: 35 },
+      { exerciseId: 'ex_alzate_laterali', targetSets: 3, targetReps: '12-15', targetWeight: 8 },
+      { exerciseId: 'ex_pushdown_cavi', targetSets: 3, targetReps: '10-12', targetWeight: 20 },
+      { exerciseId: 'ex_curl_cavi_bassi', targetSets: 3, targetReps: '10-12', targetWeight: 15 }
     ]
   },
   {
-    id: 'routine_pull',
-    name: 'Pull (Tirata: Schiena e Bicipiti)',
-    description: 'Trazioni, rematore con bilanciere, lat machine, face pull e curl bicipiti.',
+    id: 'routine_day2_lower',
+    name: 'Giorno 2 – Mercoledì • Lower (Salvaginocchio)',
+    description: 'Leg Press medio-alta, Leg Curl, Leg Extension controllata, Hip Thrust, Calf e Crunch.',
     exercises: [
-      { exerciseId: 'ex_pullups', targetSets: 4, targetReps: '6-8' },
-      { exerciseId: 'ex_barbell_row', targetSets: 4, targetReps: '8-10', targetWeight: 50 },
-      { exerciseId: 'ex_lat_machine', targetSets: 3, targetReps: '10-12', targetWeight: 55 },
-      { exerciseId: 'ex_face_pull', targetSets: 3, targetReps: '15', targetWeight: 20 },
-      { exerciseId: 'ex_barbell_curl', targetSets: 3, targetReps: '10-12', targetWeight: 25 }
+      { exerciseId: 'ex_leg_press_45', targetSets: 4, targetReps: '10-12', targetWeight: 100 },
+      { exerciseId: 'ex_leg_curl', targetSets: 4, targetReps: '10-12', targetWeight: 35 },
+      { exerciseId: 'ex_leg_extension', targetSets: 3, targetReps: '12-15', targetWeight: 25 },
+      { exerciseId: 'ex_hip_thrust_mach', targetSets: 3, targetReps: '10-12', targetWeight: 40 },
+      { exerciseId: 'ex_calf_machine', targetSets: 4, targetReps: '12-15', targetWeight: 40 },
+      { exerciseId: 'ex_crunch_machine', targetSets: 3, targetReps: '15', targetWeight: 30 }
     ]
   },
   {
-    id: 'routine_legs',
-    name: 'Legs & Core (Gambe e Addome)',
-    description: 'Squat, leg press, leg curl, polpacci e addominali.',
+    id: 'routine_day3_fullbody',
+    name: 'Giorno 3 – Venerdì • Full Body + Tricipiti & Avambracci',
+    description: 'Hack/Leg Press, Pectoral Machine, Vertical Row, French Press, Hammer Curl, Wrist Curl, Crunch inverso.',
     exercises: [
-      { exerciseId: 'ex_squat', targetSets: 4, targetReps: '8-10', targetWeight: 70 },
-      { exerciseId: 'ex_leg_press', targetSets: 3, targetReps: '10-12', targetWeight: 140 },
-      { exerciseId: 'ex_leg_curl', targetSets: 3, targetReps: '12-15', targetWeight: 40 },
-      { exerciseId: 'ex_calf_raise', targetSets: 4, targetReps: '15-20', targetWeight: 50 },
-      { exerciseId: 'ex_plank', targetSets: 3, targetReps: '60 sec' }
+      { exerciseId: 'ex_hack_squat', targetSets: 3, targetReps: '10-12', targetWeight: 50 },
+      { exerciseId: 'ex_pectoral_machine', targetSets: 3, targetReps: '10-12', targetWeight: 35 },
+      { exerciseId: 'ex_vertical_row', targetSets: 3, targetReps: '10-12', targetWeight: 40 },
+      { exerciseId: 'ex_french_press_cavi', targetSets: 3, targetReps: '10-12', targetWeight: 17.5 },
+      { exerciseId: 'ex_hammer_curl', targetSets: 3, targetReps: '10-12', targetWeight: 12 },
+      { exerciseId: 'ex_wrist_curl', targetSets: 3, targetReps: '15-20', targetWeight: 10 },
+      { exerciseId: 'ex_crunch_inverso', targetSets: 3, targetReps: '12-15' }
     ]
   }
 ];
+
+export const WORKOUT_GUIDELINES = {
+  title: 'Regole di Progressione & Tutela Crociato',
+  rules: [
+    {
+      title: 'Scelta del carico (RIR 1–2)',
+      desc: 'Utilizza un peso che ti permetta di arrivare all’ultima ripetizione con 1–2 ripetizioni di margine, mantenendo sempre una tecnica pulita.'
+    },
+    {
+      title: 'Progressione settimanale',
+      desc: 'Appena completi tutte le serie al limite superiore del range (es. 4×10 sulla Chest Press), la settimana successiva aumenta il carico di 2,5–5 kg e riparti dal limite inferiore (es. 4×8).'
+    },
+    {
+      title: 'Riscaldamento salvaginocchio (Obbligatorio)',
+      desc: '5–8 minuti di cyclette leggera + mobilità anca/caviglia prima del leg day. Evita sempre il blocco articolare completo in estensione sui macchinari.'
+    },
+    {
+      title: 'Cardio nei giorni off',
+      desc: 'Sostituisci la corsa con camminata veloce (45–60 minuti, preferibilmente in salita o con pendenza sul tapis roulant) finché il crociato dà fastidio all’impatto.'
+    },
+    {
+      title: 'Segnale di stop immediato',
+      desc: 'Se avverti dolore o gonfiore articolare al ginocchio durante l’allenamento o la camminata, interrompi subito l’esercizio.'
+    }
+  ]
+};
 
 export const DEFAULT_SAVED_FOODS: SavedFood[] = [
   { id: 'f_pollo', name: 'Petto di Pollo ai ferri', defaultPortion: '150g', calories: 165, protein: 35, carbs: 0, fat: 2, category: 'Proteine' },

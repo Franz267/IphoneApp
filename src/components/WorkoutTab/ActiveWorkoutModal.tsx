@@ -236,38 +236,48 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
   return (
     <div className="fixed inset-0 bg-slate-950 z-50 flex flex-col overflow-hidden">
       {/* iOS Top sticky bar with Safe Area */}
-      <div className="ios-glass border-b border-slate-800/80 px-4 ios-modal-header-safe pb-3 flex items-center justify-between shadow-lg">
-        <div className="flex-1 mr-2">
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
-            <input
-              type="text"
-              value={workout.title}
-              onChange={e => onUpdateWorkout({ ...workout, title: e.target.value })}
-              className="bg-transparent font-extrabold text-[17px] text-white outline-none w-full border-b border-transparent focus:border-emerald-500 transition-colors"
-              placeholder="Nome Allenamento"
-            />
+      <div className="ios-glass border-b border-slate-800/80 shadow-lg">
+        {/* Physical Status Bar Spacer for iOS */}
+        <div
+          className="w-full select-none pointer-events-none"
+          style={{
+            height: 'max(env(safe-area-inset-top, 0px), 50px)',
+            minHeight: '50px'
+          }}
+        />
+        <div className="px-4 pb-3 pt-1 flex items-center justify-between">
+          <div className="flex-1 mr-2">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
+              <input
+                type="text"
+                value={workout.title}
+                onChange={e => onUpdateWorkout({ ...workout, title: e.target.value })}
+                className="bg-transparent font-extrabold text-[17px] text-white outline-none w-full border-b border-transparent focus:border-emerald-500 transition-colors"
+                placeholder="Nome Allenamento"
+              />
+            </div>
+            <div className="flex items-center gap-1.5 text-xs text-slate-400 font-mono mt-0.5">
+              <Clock className="w-3.5 h-3.5 text-emerald-400" />
+              <span>{formatTimer(elapsedSeconds)}</span>
+            </div>
           </div>
-          <div className="flex items-center gap-1.5 text-xs text-slate-400 font-mono mt-0.5">
-            <Clock className="w-3.5 h-3.5 text-emerald-400" />
-            <span>{formatTimer(elapsedSeconds)}</span>
-          </div>
-        </div>
 
-        <div className="flex items-center gap-2">
-          <button
-            onClick={onCancelWorkout}
-            className="px-3 py-1.5 text-xs font-semibold text-slate-400 hover:text-red-400 rounded-xl hover:bg-slate-850 active:scale-95 transition"
-          >
-            Annulla
-          </button>
-          <button
-            onClick={handleFinish}
-            className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 font-black text-xs rounded-xl shadow-lg shadow-emerald-500/25 active:scale-95 transition"
-          >
-            <Trophy className="w-3.5 h-3.5" />
-            <span>Termina</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={onCancelWorkout}
+              className="px-3 py-1.5 text-xs font-semibold text-slate-400 hover:text-red-400 rounded-xl hover:bg-slate-850 active:scale-95 transition"
+            >
+              Annulla
+            </button>
+            <button
+              onClick={handleFinish}
+              className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 font-black text-xs rounded-xl shadow-lg shadow-emerald-500/25 active:scale-95 transition"
+            >
+              <Trophy className="w-3.5 h-3.5" />
+              <span>Termina</span>
+            </button>
+          </div>
         </div>
       </div>
 
